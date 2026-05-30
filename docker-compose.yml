@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: feedorch-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: feedorch
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - feedorch_mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: feedorch-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - feedorch_redis_data:/data
+    # This config tells Redis to save data to disk every 60 seconds if at least 1 key changed
+    command: redis-server --appendonly yes
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: feedorch-rabbitmq
+    ports:
+      - "5672:5672"   # Core messaging broker socket connection lane
+      - "15672:15672" # The web dashboard console interface port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+volumes:
+  feedorch_mysql_data:
+  feedorch_redis_data:
